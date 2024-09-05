@@ -1,0 +1,9 @@
+[package]
+name = "local"
+edition = "2021"
+
+[dependencies]
+args = { path = "../../../../args/" }
+hex = "0.4.3"
+t-rust = { path = "../../../../t-rust/", features = ["local"] }
+userscrate = { path = "../../../../userscrate" }

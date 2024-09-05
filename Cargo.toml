@@ -1,0 +1,9 @@
+[workspace]
+resolver = "2"
+
+members = [
+    "sdk/args",
+    "sdk/t-rust",
+    "sdk/userscrate",
+    "sdk/module/backends/local/res"
+]

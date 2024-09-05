@@ -1,0 +1,5 @@
+[package]
+name = "fibonacci"
+
+[dependencies]
+t-rust = { path = "../../../../t-rust/" }
