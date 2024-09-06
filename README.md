@@ -1,5 +1,11 @@
 # tRUST SDK
 
+📚 [**Read the docs**](https://docs.safejunction.io)  
+💬 [**Join our community**](https://docs.safejunction.io/meta/community)  
+🛠️ [**Early Access**](https://forms.gle/YKwv47pLjKe3iYbk6)
+
+---
+
 You can install and use tRust as follows:
 
 ```
