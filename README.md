@@ -14,4 +14,6 @@ t-rust run local [--verbose]
 ```
 
 The supported targets are:
-- local (no prover)
+- [x] local (no prover)
+- [ ] SP1 (zkVM)
+- [ ] RiscZero (zkVM)
