@@ -176,7 +176,8 @@ def run_existing_container(action, cont_name, target, mode_value):
     container = client.containers.get(cont_name)
     container.start()
     container_r = container.exec_run(detach=False, stdout=True, stderr=True,
-                                     environment={'ACTION': action},
+                                     environment={'ACTION': action,
+                                        'TRUST_DOCKER_ABS_PATH': f'/{target}_target'},
                                      cmd=[f'{target}/run.sh', mode_value])
     if container_r.output:
         print(container_r.output.decode('utf-8', errors='replace'))
@@ -208,21 +209,24 @@ def run_container(action, target, project_path, mode_value, verbose):
                 sys.exit(1)
             volumes = {
                 f'{abs_path}/module/backends/{target}/res/':
-                    {'bind': f'{target_path}/res/'},
+                    {'bind': f'{target_path}/res/', 'mode': 'ro'},
                 f'{abs_path}/t-rust/':
-                    {'bind': f'{target_path}/t-rust/'},
+                    {'bind': f'{target_path}/t-rust/', 'mode': 'ro'},
                 f'{abs_path}/args/':
-                    {'bind': f'{target_path}/args/'},
+                    {'bind': f'{target_path}/args/', 'mode': 'ro'},
                 project_path:
-                    {'bind': f'{target_path}/code/'},
-                '/tmp/trust.rargs/':
-                    {'bind': '/tmp/trust.rargs/'}
+                    {'bind': f'{target_path}/code/', 'mode': 'ro'},
+                '/tmp/proofs/':
+                    {'bind': '/tmp/proofs/'},
+                '/tmp/trust.rargs':
+                    {'bind': '/tmp/trust.rargs'}
                 }
             try:
                 if action == 'compile':
                     remove_container(cont_name)
                 container = client.containers.run(image, detach=False, remove=False,
-                                                  environment={'ACTION': action},
+                                                  environment={'ACTION': action,
+                                                        'TRUST_DOCKER_ABS_PATH': target_path},
                                                   command=[f'{target_path}/run.sh', mode_value],
                                                   name=cont_name, volumes=volumes,
                                                   stdout=True, stderr=True, labels={cont_name: ''})
