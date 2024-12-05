@@ -46,7 +46,7 @@ def parse_user_args(args):
     return parsed_list
 
 parser = argparse.ArgumentParser()
-parser.add_argument('command', nargs='?', choices=['compile', 'run', 'codehash'],
+parser.add_argument('command', nargs='?', choices=['compile', 'run', 'benchmark', 'codehash'],
                     help="Command to execute", default='none')
 parser.add_argument('backend', nargs='?', choices=['local'], help="Backend to use", default='none')
 parser.add_argument('-k', nargs='+', action='append',
@@ -69,6 +69,8 @@ def main():
         getattr(tRUST.backends, backend).compile(project_path, mode_value, verbose)
     elif command == 'run':
         getattr(tRUST.backends, backend).run(project_path, mode_value, verbose)
+    elif command == 'benchmark':
+        getattr(tRUST.backends, backend).benchmark(project_path, mode_value, verbose)
     elif command == 'codehash':
         getattr(tRUST.backends, backend).calculate_codehash(project_path, mode_value, verbose)
     elif command == 'list_targets':
