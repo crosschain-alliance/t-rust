@@ -36,6 +36,17 @@ def run(project_path, mode_value, verbose):
     """
     docker_mgmt.run_container('run', target, project_path, mode_value, verbose)
 
+def benchmark(project_path, mode_value, verbose):
+    """
+    Benchmark compiled project getting execution time
+
+    Args:
+        project_path (str): path of the project
+        mode_value (str): debug or release mode (default debug)
+        verbose (bool): enable verbose mode
+    """
+    docker_mgmt.run_container('benchmark', target, project_path, mode_value, verbose)
+
 def calculate_codehash(project_path, mode_value, verbose):
     """
     Calculate compiled project bin's codehash

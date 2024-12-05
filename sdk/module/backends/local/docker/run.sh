@@ -61,6 +61,21 @@ case $ACTION in
         fi
         exit
         ;;
+    benchmark)
+        BIN_PATH="${BASE_PATH}/target/${MODE}/local"
+        if [ -x "$BIN_PATH" ]; then
+            START_TIME=$(date +%s%N)
+            "$BIN_PATH" | tr -d '\n'
+            END_TIME=$(date +%s%N)
+            EXECUTION_TIME=$((END_TIME - START_TIME))
+            echo
+            echo
+            echo "Execution took ${EXECUTION_TIME} ns" | tr -d '\n'
+        else
+            echo "[!] please build the target first"
+        fi
+        exit
+        ;;
     codehash)
         BIN_PATH="${BASE_PATH}/target/${MODE}/local"
         if [ -x "$BIN_PATH" ]; then
