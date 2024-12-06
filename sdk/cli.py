@@ -48,7 +48,7 @@ def parse_user_args(args):
 parser = argparse.ArgumentParser()
 parser.add_argument('command', nargs='?', choices=['compile', 'run', 'benchmark', 'codehash'],
                     help="Command to execute", default='none')
-parser.add_argument('backend', nargs='?', choices=['local'], help="Backend to use", default='none')
+parser.add_argument('backend', nargs='?', choices=['local', 'sp1'], help="Backend to use", default='none')
 parser.add_argument('-k', nargs='+', action='append',
                     help='Optional runtime arguments, format `key:type value`')
 parser.add_argument('-m', '--mode', choices=['release', 'debug'],
