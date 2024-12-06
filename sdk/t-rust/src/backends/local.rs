@@ -186,17 +186,23 @@ pub fn read_public_outputs_vecs() -> Vec<Vec<u8>> {
 }
 
 pub fn write_input_slice(value: &[u8]) {
-    get_inputs_writer().lock().unwrap().write_slice(&value).unwrap()
+    get_inputs_writer()
+        .lock()
+        .unwrap()
+        .write_slice(&value)
+        .unwrap()
 }
 
 pub fn write_input<T: Serialize>(value: &T) {
     get_inputs_writer().lock().unwrap().write(&value).unwrap()
 }
 
-
 #[cfg(test)]
 mod test {
-    use crate::{commit, commit_slice, read, read_public_outputs_vecs, read_vec, write_input, write_input_slice};
+    use crate::{
+        commit, commit_slice, read, read_public_outputs_vecs, read_vec, write_input,
+        write_input_slice,
+    };
 
     #[test]
     pub fn should_read_input_and_outputs() {
@@ -214,7 +220,7 @@ mod test {
     }
 
     pub fn should_read_input_slice() {
-        let slice: [u8; 4]  = [0, 1, 2, 3];
+        let slice: [u8; 4] = [0, 1, 2, 3];
         write_input_slice(&slice);
         let input = read_vec();
         assert_eq!(input, slice);
@@ -228,7 +234,7 @@ mod test {
     }
 
     pub fn should_read_output_slice() {
-        let slice: [u8; 4]  = [0, 1, 2, 3];
+        let slice: [u8; 4] = [0, 1, 2, 3];
         commit_slice(&slice);
         let outputs = read_public_outputs_vecs();
         assert_eq!(outputs[0], slice);

@@ -1,8 +1,10 @@
 #[cfg(feature = "local")]
 include!("backends/local.rs");
 
-// This will act as a fallback if no feature is enabled.
-#[cfg(not(any(
-    feature = "local"
-)))]
-panic!("No specific backend is enabled");
+#[cfg(feature = "sp1")]
+include!("backends/sp1.rs");
+
+#[cfg(not(any(feature = "local", feature = "sp1")))]
+compile_error!(
+    "No specific backend is enabled. Please enable either the `local` or `sp1` feature."
+);

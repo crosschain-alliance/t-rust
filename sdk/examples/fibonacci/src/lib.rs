@@ -1,9 +1,9 @@
 #![no_std]
 
-pub fn main(){
-    t_rust::greetings();
+use t_rust::{commit, read};
 
-    let n = 42;
+pub fn main() {
+    let n = read::<u32>();
 
     let mut a = 0;
     let mut b = 1;
@@ -14,5 +14,5 @@ pub fn main(){
         b = c;
     }
 
-    t_rust::commit_u64(&b);
+    commit::<u32>(&b);
 }
