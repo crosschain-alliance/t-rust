@@ -234,11 +234,11 @@ def run_container(action, target, project_path, mode_value, verbose):
             except docker.errors.ImageNotFound:
                 build = client.api.build(path=f'{abs_path}/module/backends/{target}/docker/',
                                          tag=cont_name, rm=True, decode=True)
-                if verbose:
-                    for line in build:
+                for line in build:
+                    if verbose:
                         if 'stream' in line:
                             print(line['stream'].strip())
-                    print(f'\n[+] `{image}` built successfully\n')
+                        print(f'\n[+] `{image}` built successfully\n')
                 run_container(action, target, project_path, mode_value, verbose)
             except docker.errors.APIError:
                 run_existing_container(action, cont_name, target_path, mode_value)
