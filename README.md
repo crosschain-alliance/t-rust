@@ -15,11 +15,27 @@ cd t-rust/
 source ~/.bashrc (or ~/.zshrc for macOS)
 
 cd <your-project>
+
+# Run locally
 t-rust compile local [--verbose]
 t-rust run local [--verbose]
+
+# Run on sp1
+t-rust compile sp1 [--verbose]
+t-rust run sp1 [--verbose]
 ```
+
+In order to get execution time:
+```
+# Locally
+t-rust benchmark local [--verbose]
+
+# sp1
+t-rust benchmark local [--verbose]
+```
+
 
 The supported targets are:
 - [x] local (no prover)
-- [ ] SP1 (zkVM)
+- [x] SP1 (zkVM)
 - [ ] RiscZero (zkVM)

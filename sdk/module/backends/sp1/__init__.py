@@ -7,12 +7,11 @@ import sys
 grandparent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir))
 sys.path.append(grandparent_dir)
 
-
 import docker_mgmt
 
 
-__name__ = "Local"
-target = 'local'
+__name__ = "SP1"
+target = 'sp1'
 
 def compile(project_path, mode_value, verbose):
     """
