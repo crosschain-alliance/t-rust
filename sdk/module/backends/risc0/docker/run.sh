@@ -60,6 +60,29 @@ case $ACTION in
         fi
         exit
         ;;
+    benchmark)
+        BIN_FOLDER_PATH="${BASE_PATH}/runner/target/release"
+        if [ -d "$BIN_FOLDER_PATH" ]; then
+            if [ "$(ls -A $BIN_FOLDER_PATH)" ]; then
+                if [ "$MODE" == "release" ]; then
+                    START_TIME=$(date +%s%N)
+                    cd "$BIN_FOLDER_PATH" && RUST_BACKTRACE=1 RUST_LOG=info ./host
+                    END_TIME=$(date +%s%N)
+                    EXECUTION_TIME=$((END_TIME - START_TIME))
+                    echo
+                    echo
+                    echo "Execution took ${EXECUTION_TIME} ns" | tr -d '\n'
+                else
+                    echo "[!] Mode not valid!"
+                fi
+            else
+                echo "[!] please build the target first"
+            fi
+        else
+            echo "[!] please build the target first"
+        fi
+        exit
+        ;;
     codehash)
         BIN_FOLDER_PATH="${BASE_PATH}/runner"
         if [ -d "$BIN_FOLDER_PATH" ]; then
