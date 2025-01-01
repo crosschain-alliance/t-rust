@@ -38,4 +38,4 @@ t-rust benchmark local [--verbose]
 The supported targets are:
 - [x] local (no prover)
 - [x] SP1 (zkVM)
-- [ ] RiscZero (zkVM)
+- [x] RiscZero (zkVM)

@@ -5,12 +5,16 @@ use t_rust::{read_public_outputs_vecs, write_input, write_input_slice};
 
 pub fn main() {
     let args = parse_args().unwrap();
+    println!("a {:?}", args);
     for arg in args {
+        println!("b {:?}", arg);
         match arg.kind.as_str() {
             "uint32" => {
+                println!("c {:?}", arg);
                 write_input::<u32>(&u32::from_str_radix(&arg.value, 10).unwrap());
             }
             "bytearray" => {
+                println!("d {:?}", arg);
                 write_input_slice(&hex::decode(&arg.value).unwrap());
             }
             _ => {
