@@ -5,13 +5,15 @@ edition = "2021"
 
 [dependencies]
 bincode = { version = "1.3.3", optional = true }
-serde =  "1.0.206"
-serde_derive =   "1.0.206"
+serde = { version = "1.0.206", optional = true }
+serde_derive = { version = "1.0.206", optional = true }
 sp1-zkvm = { git = "https://github.com/succinctlabs/sp1.git", tag = "v2.0.0", optional = true }
 risc0-zkvm = { version = "1.2.0", optional = true }
+jolt-zkvm = { package = "jolt-sdk", git = "https://github.com/a16z/jolt", features = ["guest-std"], optional = true }
 
 [features]
 default = [] 
-local = ["bincode"]
-sp1 = ["dep:sp1-zkvm"]
-risc0 = ["dep:risc0-zkvm"]
+local = ["bincode", "serde", "serde_derive"]
+sp1 = ["dep:sp1-zkvm", "serde", "serde_derive"]
+risc0 = ["dep:risc0-zkvm", "serde", "serde_derive"]
+jolt = ["dep:jolt-zkvm", "serde", "serde_derive"]

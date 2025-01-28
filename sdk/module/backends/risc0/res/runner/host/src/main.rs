@@ -5,38 +5,44 @@ use methods::{
     PROGRAM_ELF, PROGRAM_ID
 };
 use risc0_zkvm::{default_prover, ExecutorEnv};
-// use risc0_zkvm::serde::{from_slice, to_vec};
+use hex;
+
 fn main() {
     // Initialize tracing. In order to view logs, run `RUST_LOG=info cargo run`
     tracing_subscriber::fmt()
         .with_env_filter(tracing_subscriber::filter::EnvFilter::from_default_env())
         .init();
 
-    // For example:
-    //let input: u32 = 15 * u32::pow(2, 27) + 1;
-    let mut input_data: u32 = 0;
+    let mut ex_env = ExecutorEnv::builder();
+
     let args = parse_args().unwrap();
     for arg in args {
         match arg.kind.as_str() {
             "uint32" => {
-                input_data = u32::from_str_radix(&arg.value, 10).unwrap();
-                // input_data.extend(&to_vec(&value).unwrap());
+                ex_env.write(&u32::from_str_radix(&arg.value, 10).unwrap()).unwrap();
             }
-            // "bytearray" => {
-            //     let bytes = hex::decode(&arg.value).unwrap();
-            //     input_data.extend(&to_vec(&bytes).unwrap());
-            // }
+            "bytearray" => {
+                let value = if arg.value.starts_with("0x") {
+                    &arg.value[2..]
+                } else {
+                    &arg.value
+                };
+                let bytes = match hex::decode(value) {
+                    Ok(b) => {b},
+                    Err(e) => {
+                        eprintln!("Failed to decode hex string: {}", e);
+                        return;
+                    }
+                };
+                ex_env.write(&bytes).unwrap();
+            }
             _ => {
                 eprintln!("Unknown argument kind: {}", arg.kind);
             }
         }
     }
 
-    let env = ExecutorEnv::builder()
-        .write(&input_data)
-        .unwrap()
-        .build()
-        .unwrap();
+    let env = ex_env.build().unwrap();
 
     // Obtain the default prover.
     let prover = default_prover();
@@ -50,13 +56,12 @@ fn main() {
     // extract the receipt.
     let receipt = prove_info.receipt;
 
-    let output: u32 = receipt.journal.decode().unwrap();
-    println!("{} is a public output from the journal ", output);
+    // Save receipt to file
+    // let receipt_file = File::create("/tmp/proofs/risc0Proof.bin").expect("Creating receipt file failed");
+    // bincode::serialize_into(receipt_file, &receipt).expect("Serializing receipt failed");
 
-    // TODO: Implement code for retrieving receipt journal here.
-
-    // For example:
-    //let _output: u32 = receipt.journal.decode().unwrap();
+    let output = receipt.journal.clone();
+    println!("Output: {:?}", output);
 
     // The receipt was verified at the end of proving, but the below code is an
     // example of how someone else could verify this receipt.
