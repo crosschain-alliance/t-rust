@@ -12,3 +12,7 @@ pub fn write<T: Serialize>(data: &T) {
 pub fn read<T: DeserializeOwned>() -> T {
     env::read::<T>()
 }
+
+pub fn read_vec<T: DeserializeOwned>() -> T {
+    env::read::<T>()
+}
