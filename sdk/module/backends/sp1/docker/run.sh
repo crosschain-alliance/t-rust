@@ -1,5 +1,4 @@
 #!/bin/bash
-
 BASE_PATH="/sp1_target/tmp/sp1"
 MODE="release"
 case $ACTION in
@@ -36,19 +35,21 @@ case $ACTION in
         sed -i 's|\.\.\/\.\./\.\./\.\./\.\./args/|../../../args/|g' "$RUNNER_TOML_FILE"
         cargo prove build
         if [ "$MODE" == "release" ]; then
-            VER_KEY=$(cd "$BIN_FOLDER_PATH" && RUST_LOG=info cargo run --package sp1-script --bin vkey --release)
-            echo "$VER_KEY" | tr -d '\n'
+           VER_KEY=$(cd "$BIN_FOLDER_PATH" && RUST_LOG=info cargo build --package sp1-script --bin vkey --release)
+           echo "$VER_KEY" | tr -d '\n'
+           BIN_FOLDER_PATH="${BASE_PATH}/runner/target/release"
+           cd "$BIN_FOLDER_PATH" && RUST_LOG=info cargo build --package sp1-script --bin prove --release
         else
-            echo "[!] Mode not valid!"
+           echo "[!] Mode not valid!"
         fi
         exit
         ;;
     run)
-        BIN_FOLDER_PATH="${BASE_PATH}/runner"
+        BIN_FOLDER_PATH="${BASE_PATH}/runner/target/release"
         if [ -d "$BIN_FOLDER_PATH" ]; then
             if [ "$(ls -A $BIN_FOLDER_PATH)" ]; then
                 if [ "$MODE" == "release" ]; then
-                    cd "$BIN_FOLDER_PATH" && RUST_BACKTRACE=1 RUST_LOG=info cargo run --package sp1-script --bin prove --release --verbose
+                    cd "$BIN_FOLDER_PATH" && RUST_BACKTRACE=1 RUST_LOG=info ./prove #cargo run --package sp1-script --bin prove --release --verbose
                 else
                     echo "[!] Mode not valid!"
                 fi
@@ -61,12 +62,12 @@ case $ACTION in
         exit
         ;;
     benchmark)
-        BIN_FOLDER_PATH="${BASE_PATH}/runner"
+        BIN_FOLDER_PATH="${BASE_PATH}/runner/target/release"
         if [ -d "$BIN_FOLDER_PATH" ]; then
             if [ "$(ls -A $BIN_FOLDER_PATH)" ]; then
                 if [ "$MODE" == "release" ]; then
                     START_TIME=$(date +%s%N)
-                    cd "$BIN_FOLDER_PATH" && RUST_BACKTRACE=1 RUST_LOG=info cargo run --package sp1-script --bin prove --release --verbose
+                    cd "$BIN_FOLDER_PATH" && RUST_BACKTRACE=1 RUST_LOG=info ./prove #cargo run --package sp1-script --bin prove --release --verbose
                     END_TIME=$(date +%s%N)
                     EXECUTION_TIME=$((END_TIME - START_TIME))
                     echo
