@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:24.04
 ENV TZ=Europe/London
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
   apt update -y && \
@@ -12,7 +12,6 @@ RUN wget -c https://go.dev/dl/go1.22.0.linux-amd64.tar.gz && \
 ENV PATH="$PATH:/usr/local/go/bin"
 RUN rzup install && \
   mkdir /risc0_target
-COPY run.sh /risc0_target
 WORKDIR /risc0_target
 
 CMD [ "release" ]

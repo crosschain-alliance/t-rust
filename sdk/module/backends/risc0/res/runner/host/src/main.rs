@@ -36,6 +36,11 @@ fn main() {
                 };
                 ex_env.write(&bytes).unwrap();
             }
+            "file" => {
+                let buffer = std::fs::read("/risc0_target/input.file").unwrap();
+                let buf_slice = buffer.as_slice();
+                ex_env.write(&buf_slice).unwrap();
+            }
             _ => {
                 eprintln!("Unknown argument kind: {}", arg.kind);
             }
@@ -49,10 +54,12 @@ fn main() {
 
     // Proof information by proving the specified ELF binary.
     // This struct contains the receipt along with statistics about execution of the guest
+    println!("Proving ...");
     let prove_info = prover
         .prove(env, PROGRAM_ELF)
         .unwrap();
 
+    println!("Receipt: {:?}", prove_info.receipt);
     // extract the receipt.
     let receipt = prove_info.receipt;
 

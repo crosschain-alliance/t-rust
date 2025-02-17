@@ -13,6 +13,11 @@ pub fn main() {
             "bytearray" => {
                 write_input_slice(&hex::decode(&arg.value).unwrap());
             }
+            "file" => {
+                let buffer = std::fs::read("/local_target/input.file").unwrap();
+                let mut buf_slice = buffer.as_slice();
+                write_input_slice(&buf_slice);
+            }
             _ => {
                 eprintln!("Unknown argument kind: {}", arg.kind);
             }

@@ -1,3 +1,5 @@
+import io
+import tarfile
 import docker
 import getpass
 import grp
@@ -163,7 +165,7 @@ def check_if_container_is_running(cont_name):
         return True
     return False
 
-def run_existing_container(action, cont_name, target, mode_value):
+def run_existing_container(action, cont_name, target, mode_value, file_path=None):
     """
     Run an existing container given its action and mode
 
@@ -173,16 +175,29 @@ def run_existing_container(action, cont_name, target, mode_value):
         target (str): backend type
         mode_value (str): run mode
     """
-    container = client.containers.get(cont_name)
-    container.start()
-    container_r = container.exec_run(detach=False, stdout=True, stderr=True,
-                                     environment={'ACTION': action,
-                                        'TRUST_DOCKER_ABS_PATH': f'/{target}_target'},
-                                     cmd=[f'{target}/run.sh', mode_value])
-    if container_r.output:
-        print(container_r.output.decode('utf-8', errors='replace'))
+    container = client.containers.get(cont_name)    
+    if container.status != 'running':
+        container.start()
 
-def run_container(action, target, project_path, mode_value, verbose):
+    if file_path:
+        tar_stream = io.BytesIO()
+        with tarfile.open(fileobj=tar_stream, mode='w:gz') as tar:
+            tar.add(file_path, arcname='input.file')
+        tar_stream.seek(0)
+        container.put_archive(target, tar_stream)
+
+    container_r = container.exec_run(
+                detach=False, stdout=True, stderr=True, stream=True, tty=True,
+                environment={'ACTION': action,
+                            'TRUST_DOCKER_ABS_PATH': target},
+                cmd=[f'{target}/run.sh', mode_value]
+            )
+            
+    for output in container_r.output:
+        if output:
+            print(output.decode('utf-8', errors='replace'), end='', flush=True)
+
+def run_container(action, target, project_path, mode_value, verbose, file_path=None):
     """
     Run a container given action, target and project_path and mode
 
@@ -192,13 +207,14 @@ def run_container(action, target, project_path, mode_value, verbose):
         project_path (str): path of the project
         mode_value (str): run mode
         verbose (bool): verbose flag
+        file_path (str, optional): file to pass in the container. Defaults to None.
     """
     cont_name = f'trust_{target}_1'
-    signal_handler = create_signal_handler(cont_name)
-    signal.signal(signal.SIGINT, signal_handler)  # ctrl-c
-    signal.signal(signal.SIGTERM, signal_handler)  # kill
-    signal.signal(signal.SIGHUP, signal_handler)  # death of controlling process
-    signal.signal(signal.SIGQUIT, signal_handler)  # ctrl-\
+    signal_handler_instance = create_signal_handler(cont_name)
+    signal.signal(signal.SIGINT, signal_handler_instance)  # ctrl-c
+    signal.signal(signal.SIGTERM, signal_handler_instance)  # kill
+    signal.signal(signal.SIGHUP, signal_handler_instance)  # death of controlling process
+    signal.signal(signal.SIGQUIT, signal_handler_instance)  # ctrl-\
     image = f'{cont_name}:latest'
     target_path = f'/{target}_target'
     try:
@@ -208,6 +224,8 @@ def run_container(action, target, project_path, mode_value, verbose):
                 print(f'[!] error while reading global var `TRUST_ABS_PATH`')
                 sys.exit(1)
             volumes = {
+                f'{abs_path}/module/backends/{target}/docker/run.sh':
+                    {'bind': f'{target_path}/run.sh', 'mode': 'ro'},
                 f'{abs_path}/module/backends/{target}/res/':
                     {'bind': f'{target_path}/res/', 'mode': 'ro'},
                 f'{abs_path}/t-rust/':
@@ -220,17 +238,27 @@ def run_container(action, target, project_path, mode_value, verbose):
                     {'bind': '/tmp/proofs/'},
                 '/tmp/trust.rargs':
                     {'bind': '/tmp/trust.rargs'}
-                }
+            }
             try:
                 if action == 'compile':
                     remove_container(cont_name)
-                container = client.containers.run(image, detach=False, remove=False,
-                                                  environment={'ACTION': action,
-                                                        'TRUST_DOCKER_ABS_PATH': target_path},
-                                                  command=[f'{target_path}/run.sh', mode_value],
-                                                  name=cont_name, volumes=volumes,
-                                                  stdout=True, stderr=True, labels={cont_name: ''})
-                print(container.decode('utf-8', errors='replace'))
+                    print(f'Building {target} environment ...')
+
+                # build and run container
+                container = client.containers.run(
+                    image, detach=True, remove=False,
+                    command="bash",
+                    name=cont_name, volumes=volumes,
+                    stdin_open=True, tty=True,
+                    stdout=True, stderr=True, labels={cont_name: ''}
+                )
+
+                # Stream output in real time
+                print(f'Compiling for {target} target ...')
+                run_existing_container(action, cont_name, target_path, mode_value, file_path)
+
+                container.stop()
+                print('Compiled')
             except docker.errors.ImageNotFound:
                 build = client.api.build(path=f'{abs_path}/module/backends/{target}/docker/',
                                          tag=cont_name, rm=True, decode=True)
@@ -239,17 +267,18 @@ def run_container(action, target, project_path, mode_value, verbose):
                         if 'stream' in line:
                             print(line['stream'].strip())
                         print(f'\n[+] `{image}` built successfully\n')
-                run_container(action, target, project_path, mode_value, verbose)
+                run_container(action, target, project_path, mode_value, verbose, file_path)
             except docker.errors.APIError:
-                run_existing_container(action, cont_name, target_path, mode_value)
+                run_existing_container(action, cont_name, target_path, mode_value, file_path)
             except Exception as e:
                 print(f'[!] error while running container: {e}')
         else:
-            pass
+            container = client.containers.get(cont_name)
+            stop_container(container.id)
     except docker.errors.APIError:
-        run_existing_container(action, cont_name, target_path, mode_value)
+        run_existing_container(action, cont_name, target_path, mode_value, file_path)
     except Exception as e:
         print(f'[!] error while running container {cont_name}: {e}')
         sys.exit(1)
     finally:
-        signal_handler(None, None)
+        signal_handler_instance(None, None)

@@ -21,6 +21,11 @@ fn main() {
             }
             "bytearray" => {
                 stdin.write_slice(&hex::decode(&arg.value).unwrap());
+            },
+            "file" => {
+                let buffer = std::fs::read("/sp1_target/input.file").unwrap();
+                let mut buf_slice = buffer.as_slice();
+                stdin.write_slice(&buf_slice);
             }
             _ => {
                 eprintln!("Unknown argument kind: {}", arg.kind);
