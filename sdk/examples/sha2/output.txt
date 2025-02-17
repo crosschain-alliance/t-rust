@@ -1,0 +1,11 @@
+key_value_pairs [{'name': 'input', 'value': 'f9', 'kind': 'bytearray'}]
+[+] Running docker command:
+docker run --rm -v "/home/envin/Work/substance_labs/t-rust/sdk/module/backends/risc0/res/:/risc0_target/res/:ro" -v "/home/envin/Work/substance_labs/t-rust/sdk/t-rust/:/risc0_target/t-rust/:ro" -v "/home/envin/Work/substance_labs/t-rust/sdk/args/:/risc0_target/args/:ro" -v "/home/envin/Work/substance_labs/t-rust/sdk/benchmark_tests/sha2:/risc0_target/code/:ro" -v "/tmp/proofs/:/tmp/proofs/" -v "/tmp/trust.rargs:/tmp/trust.rargs" -e ACTION=benchmark -e TRUST_DOCKER_ABS_PATH=/risc0_target trust_risc0_1:latest /risc0_target/run.sh debug
+File open result: Ok(File { fd: 3, path: "/tmp/trust.rargs", read: true, write: false })
+File open result2: File { fd: 3, path: "/tmp/trust.rargs", read: true, write: false }
+CBOR deserialization result: Ok([Argument { name: "input", value: "f9", kind: "bytearray" }])
+[2m2025-01-22T10:12:54.251766Z[0m [32m INFO[0m [2mrisc0_zkvm::host::server::exec::executor[0m[2m:[0m execution time: 2.652001ms
+213 is a public output from the journal 
+
+
+Execution took 4312359854 ns

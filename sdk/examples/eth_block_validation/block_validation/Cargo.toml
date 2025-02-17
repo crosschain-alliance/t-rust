@@ -1,0 +1,14 @@
+[package]
+name = "block_validation"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+t-rust = { path = "../../t-rust/" }
+alloy-rlp = "0.3.8"
+reth-chainspec = { git = "https://github.com/risc0/reth", branch = "p1.1.0_zstd", default-features = false}
+reth-consensus-common = { git = "https://github.com/risc0/reth", branch = "p1.1.0_zstd" }
+reth-primitives = { git = "https://github.com/risc0/reth", branch = "p1.1.0_zstd", default-features = false, features = [
+    "std",
+    "alloy-compat",
+] }
