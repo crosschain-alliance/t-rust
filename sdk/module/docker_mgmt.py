@@ -68,7 +68,7 @@ if is_docker_installed():
 else:
     sys.exit(1)
 
-def stop_container(cont_id):
+def stop_container(cont_id, verbose=False):
     """
     Stop container by id
 
@@ -76,11 +76,13 @@ def stop_container(cont_id):
         cont_id (str): container id
     """
     try:
-        print(f'Waiting for t-rust process to end ...')
+        if verbose:
+            print(f'Waiting for t-rust process to end ...')
         container = client.containers.get(cont_id)
         container.stop()
         container.wait()
-        print(f'Done')
+        if verbose:
+            print(f'Done')
     except docker.errors.NotFound:
         pass
     except docker.errors.APIError as e:
@@ -169,7 +171,7 @@ def check_if_container_is_running(cont_name):
         return True
     return False
 
-def run_existing_container(action, cont_name, target, mode_value, file_path=None):
+def run_existing_container(action, cont_name, target, mode_value, verbose, file_path=None):
     """
     Run an existing container given its action and mode
 
@@ -178,6 +180,8 @@ def run_existing_container(action, cont_name, target, mode_value, file_path=None
         cont_name (str): container name
         target (str): backend type
         mode_value (str): run mode
+        verbose (bool): verbose flag
+        file_path (str, optional): file to pass in the container. Defaults to None.
     """
     if action == 'compile':
         print(f'Compiling for {target} target ...')
@@ -207,7 +211,7 @@ def run_existing_container(action, cont_name, target, mode_value, file_path=None
             print(output.decode('utf-8', errors='replace'), end='', flush=True)
     print()
 
-    stop_container(container.id)
+    stop_container(container.id, verbose)
 
 def run_container(action, target, project_path, mode_value, verbose, file_path=None):
     """
@@ -273,7 +277,7 @@ def run_container(action, target, project_path, mode_value, verbose, file_path=N
 
                 containers = client.containers.list(all=True, filters={'name': cont_name})
                 if containers:
-                    run_existing_container(action, cont_name, target, mode_value, file_path)
+                    run_existing_container(action, cont_name, target, mode_value, verbose, file_path)
                 else:
                     container = client.containers.run(
                         image, detach=True, remove=False,
@@ -282,7 +286,7 @@ def run_container(action, target, project_path, mode_value, verbose, file_path=N
                         stdin_open=True, tty=True,
                         stdout=True, stderr=True, labels={cont_name: ''}
                     )
-                    run_existing_container(action, cont_name, target, mode_value, file_path)
+                    run_existing_container(action, cont_name, target, mode_value, verbose, file_path)
             except docker.errors.ImageNotFound as e:
                 print(f'Failed to build {target} environment image: \n{e}')
             except docker.errors.APIError as e:
