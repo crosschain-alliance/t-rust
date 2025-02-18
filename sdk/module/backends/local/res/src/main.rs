@@ -15,7 +15,7 @@ pub fn main() {
             }
             "file" => {
                 let buffer = std::fs::read("/local_target/input.file").unwrap();
-                let mut buf_slice = buffer.as_slice();
+                let buf_slice = buffer.as_slice();
                 write_input_slice(&buf_slice);
             }
             _ => {

@@ -76,9 +76,11 @@ def stop_container(cont_id):
         cont_id (str): container id
     """
     try:
+        print(f'Waiting for t-rust process to end ...')
         container = client.containers.get(cont_id)
         container.stop()
         container.wait()
+        print(f'Done')
     except docker.errors.NotFound:
         pass
     except docker.errors.APIError as e:
@@ -93,7 +95,8 @@ def remove_container(cont_name):
     """
     try:
         container = client.containers.get(cont_name)
-        stop_container(container.id)
+        if check_if_container_is_running(cont_name):
+            stop_container(container.id)
         container.remove()
     except docker.errors.NotFound:
         pass
@@ -176,27 +179,33 @@ def run_existing_container(action, cont_name, target, mode_value, file_path=None
         target (str): backend type
         mode_value (str): run mode
     """
+    if action == 'compile':
+        print(f'Compiling for {target} target ...')
+    elif action == 'run':
+        print(f'Running {target} target ...')
     container = client.containers.get(cont_name)    
     if container.status != 'running':
         container.start()
 
+    target_path = f'/{target}_target'
     if file_path:
         tar_stream = io.BytesIO()
         with tarfile.open(fileobj=tar_stream, mode='w:gz') as tar:
             tar.add(file_path, arcname='input.file')
         tar_stream.seek(0)
-        container.put_archive(target, tar_stream)
+        container.put_archive(target_path, tar_stream)
 
     container_r = container.exec_run(
                 detach=False, stdout=True, stderr=True, stream=True, tty=True,
                 environment={'ACTION': action,
-                            'TRUST_DOCKER_ABS_PATH': target},
-                cmd=[f'{target}/run.sh', mode_value]
+                            'TRUST_DOCKER_ABS_PATH': target_path},
+                cmd=[f'{target_path}/run.sh', mode_value]
             )
             
     for output in container_r.output:
         if output:
             print(output.decode('utf-8', errors='replace'), end='', flush=True)
+    print()
 
     stop_container(container.id)
 
@@ -245,41 +254,46 @@ def run_container(action, target, project_path, mode_value, verbose, file_path=N
             try:
                 if action == 'compile':
                     remove_container(cont_name)
+
+                existing_images = client.images.list()
+                image_exists = any(image in img.tags for img in existing_images)
+                if not image_exists:
+                    print(f'{target} environment not found')
                     print(f'Building {target} environment ...')
+                    if not verbose:
+                        print(f'Use --verbose for more details')
+                    build = client.api.build(path=f'{abs_path}/module/backends/{target}/docker/',
+                                            tag=cont_name, rm=True, decode=True)
+                    for line in build:
+                        if verbose:
+                            print('verbose')
+                            if 'stream' in line:
+                                print(line['stream'].strip())
+                            print(f'\n[+] `{image}` built successfully\n')
 
-                # build and run container
-                container = client.containers.run(
-                    image, detach=True, remove=False,
-                    command="bash",
-                    name=cont_name, volumes=volumes,
-                    stdin_open=True, tty=True,
-                    stdout=True, stderr=True, labels={cont_name: ''}
-                )
-
-                # Stream output in real time
-                print(f'Compiling for {target} target ...')
-                run_existing_container(action, cont_name, target_path, mode_value, file_path)
-
-                stop_container(container.id)
-                print('Compiled')
-            except docker.errors.ImageNotFound:
-                build = client.api.build(path=f'{abs_path}/module/backends/{target}/docker/',
-                                         tag=cont_name, rm=True, decode=True)
-                for line in build:
-                    if verbose:
-                        if 'stream' in line:
-                            print(line['stream'].strip())
-                        print(f'\n[+] `{image}` built successfully\n')
-                run_container(action, target, project_path, mode_value, verbose, file_path)
-            except docker.errors.APIError:
-                run_existing_container(action, cont_name, target_path, mode_value, file_path)
+                containers = client.containers.list(all=True, filters={'name': cont_name})
+                if containers:
+                    run_existing_container(action, cont_name, target, mode_value, file_path)
+                else:
+                    container = client.containers.run(
+                        image, detach=True, remove=False,
+                        command="bash",
+                        name=cont_name, volumes=volumes,
+                        stdin_open=True, tty=True,
+                        stdout=True, stderr=True, labels={cont_name: ''}
+                    )
+                    run_existing_container(action, cont_name, target, mode_value, file_path)
+            except docker.errors.ImageNotFound as e:
+                print(f'Failed to build {target} environment image: \n{e}')
+            except docker.errors.APIError as e:
+                print(f'API error for {target} environment container: \n{e}')
             except Exception as e:
                 print(f'[!] error while running container: {e}')
         else:
+            print('f')
             container = client.containers.get(cont_name)
             stop_container(container.id)
-    except docker.errors.APIError:
-        run_existing_container(action, cont_name, target_path, mode_value, file_path)
+            run_container(action, target, project_path, mode_value, verbose, file_path)
     except Exception as e:
         print(f'[!] error while running container {cont_name}: {e}')
         sys.exit(1)
