@@ -27,7 +27,7 @@ pub fn main() {
     userscrate::main();
 
     let outputs = read_public_outputs_vecs();
-    println!("{:?}", outputs);
+    println!("Output: {:?}", outputs);
 
     // TODO: handle outputs
 }
