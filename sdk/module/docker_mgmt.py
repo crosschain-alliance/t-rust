@@ -78,6 +78,7 @@ def stop_container(cont_id):
     try:
         container = client.containers.get(cont_id)
         container.stop()
+        container.wait()
     except docker.errors.NotFound:
         pass
     except docker.errors.APIError as e:
@@ -197,6 +198,8 @@ def run_existing_container(action, cont_name, target, mode_value, file_path=None
         if output:
             print(output.decode('utf-8', errors='replace'), end='', flush=True)
 
+    stop_container(container.id)
+
 def run_container(action, target, project_path, mode_value, verbose, file_path=None):
     """
     Run a container given action, target and project_path and mode
@@ -257,7 +260,7 @@ def run_container(action, target, project_path, mode_value, verbose, file_path=N
                 print(f'Compiling for {target} target ...')
                 run_existing_container(action, cont_name, target_path, mode_value, file_path)
 
-                container.stop()
+                stop_container(container.id)
                 print('Compiled')
             except docker.errors.ImageNotFound:
                 build = client.api.build(path=f'{abs_path}/module/backends/{target}/docker/',
