@@ -262,7 +262,6 @@ def run_container(action, target, project_path, mode_value, verbose, file_path=N
                 existing_images = client.images.list()
                 image_exists = any(image in img.tags for img in existing_images)
                 if not image_exists:
-                    print(f'{target} environment not found')
                     print(f'Building {target} environment ...')
                     if not verbose:
                         print(f'Use --verbose for more details')
