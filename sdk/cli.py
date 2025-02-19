@@ -47,7 +47,7 @@ def parse_user_args(args):
     return parsed_list
 
 parser = argparse.ArgumentParser()
-parser.add_argument('command', nargs='?', choices=['compile', 'run', 'benchmark', 'codehash'],
+parser.add_argument('command', nargs='?', choices=['compile', 'run', 'prove', 'verify', 'benchmark', 'codehash'],
                     help="Command to execute", default='none')
 parser.add_argument('backend', nargs='?', choices=['local', 'sp1', 'risc0', 'jolt'], help="Backend to use", default='none')
 parser.add_argument('-k', nargs='+', action='append',
@@ -57,7 +57,10 @@ parser.add_argument('-m', '--mode', choices=['release', 'debug'],
 parser.add_argument('-v', '--verbose', action='store_true',
                     help='Enable verbose mode')
 args = parser.parse_args()
+
 key_value_pairs = parse_user_args(args.k) if args.k else []
+key_value_pairs.insert(0,{'name': 'mode', 'value': args.command, 'kind': 'internal'})
+print('key_value_pairs', key_value_pairs)
 # Process key_value_pairs entries of type 'file'
 file_path = None
 for arg in key_value_pairs:
@@ -67,7 +70,7 @@ for arg in key_value_pairs:
             sys.exit(1)
         file_path = arg['value']
 mode_value = args.mode
-command = args.command
+command = args.command if args.command not in ('prove', 'verify') else 'run'
 backend = args.backend
 verbose = args.verbose
 with open('/tmp/trust.rargs', 'wb') as cbor_file:
