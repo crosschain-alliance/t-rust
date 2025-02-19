@@ -5,6 +5,6 @@ edition = "2021"
 
 [dependencies]
 alloy-sol-types = "0.7.2"
-sp1-zkvm = { git = "https://github.com/succinctlabs/sp1.git", tag = "v2.0.0" }
+sp1-zkvm = "4.1.1"
 t-rust = { path = "../../../../../t-rust/", features = ["sp1"] }
 userscrate = { path = "../../../../../userscrate" }
