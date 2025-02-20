@@ -47,3 +47,30 @@ pub fn parse_args() -> Result<Vec<Argument>> {
 
     Ok(args)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+    use tempfile::NamedTempFile;
+
+    #[test]
+    fn test_parse_valid_args() -> Result<()> {
+        let test_args = vec![
+            Argument {
+                name: "test".to_string(),
+                value: "123".to_string(),
+                kind: "uint32".to_string(),
+            },
+        ];
+
+        let temp_file = NamedTempFile::new()?;
+        serde_cbor::to_writer(&temp_file, &test_args)?;
+
+        let args = parse_args()?;
+        assert_eq!(args.len(), 1);
+        assert_eq!(args[0].name, "test");
+        
+        Ok(())
+    }
+}
