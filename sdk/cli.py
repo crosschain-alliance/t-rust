@@ -60,7 +60,6 @@ args = parser.parse_args()
 
 key_value_pairs = parse_user_args(args.k) if args.k else []
 key_value_pairs.insert(0,{'name': 'mode', 'value': args.command, 'kind': 'internal'})
-print('key_value_pairs', key_value_pairs)
 # Process key_value_pairs entries of type 'file'
 file_path = None
 for arg in key_value_pairs:

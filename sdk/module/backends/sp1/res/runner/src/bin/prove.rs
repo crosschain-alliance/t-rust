@@ -78,7 +78,7 @@ fn verify(client: &EnvProver) -> Result<()> {
     let (_proving_key, verification_key) = client.setup(PROGRAM_ELF);
     
     let proof = SP1ProofWithPublicValues::load(Path::new(INPUT_FILE_PATH))
-        .context("Failed to save proof")?;
+        .context("Failed to load proof")?;
 
     client.verify(&proof, &verification_key)
         .context("Proof verification failed")?;
@@ -92,8 +92,8 @@ fn main() -> Result<()> {
     sp1_sdk::utils::setup_logger();
     let client = ProverClient::from_env();
     
-    let args = parse_args().map_err(|_| anyhow::anyhow!("Failed to parse arguments"))?;
-    let config = ProverConfig::new(args)?;
+    // let args = parse_args().map_err(|_| anyhow::anyhow!("Failed to parse arguments"))?;
+    let config = ProverConfig::new(parse_args()?)?;
     
     match config.mode.as_str() {
         "run" => execute_program(&client, &config.stdin)?,
