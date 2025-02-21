@@ -38,11 +38,11 @@ def run_benchmark(app, target, input_type, input):
     result = result.stdout.strip().split('\n')[-1]
     words = result.split()
     time = words[-2]
-    return f"{app}, {target}, {time}\n"
+    return f"{app},{target},{time}\n"
 
 def run():
     with open(output_file, 'w') as f:
-        f.write("app, target, time (ns)\n")
+        f.write("app,target,time_ns\n")
 
     for app, app_config in config.items():
         input_value = app_config["input"]
