@@ -1,0 +1,16 @@
+[package]
+name = "fetch_block"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+alloy = { version = "0.4.2", features = ["full"] }
+alloy-rlp = "0.3.8"
+alloy-genesis = "0.4.2"
+clap = { version = "4.1", features = ["derive"] }
+eyre = "0.6.12"
+reth-consensus-common = { git = "https://github.com/risc0/reth", branch = "p1.1.0_zstd" }
+reth-chainspec = { git = "https://github.com/risc0/reth", branch = "p1.1.0_zstd", default-features = false, features = ["std"] }
+reth-primitives = { git = "https://github.com/risc0/reth", branch = "p1.1.0_zstd", default-features = false, features = ["std", "alloy-compat"] }
+tokio = { version = "1.43.0", features = ["rt-multi-thread", "macros"] }
+url = "2.3"
