@@ -5,7 +5,8 @@ pub fn main() {
     let (prove_main, verify_main) = guest::build_entrypoint();
     let (prove_main_vec, verify_main_vec) = guest::build_entrypoint_vec();
 
-    let args = parse_args().unwrap();
+    let mut args = parse_args().unwrap();
+    args.remove(0).value;
     for arg in args {
         match arg.kind.as_str() {
             "uint32" => {
