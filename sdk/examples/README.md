@@ -53,9 +53,9 @@ python run_benchmark.py
 The script generates a CSV file named `benchmark_result.csv` with the following format:
 
 ```csv
-app, target, time (ns)
-fibonacci, risc0, 1234567
-fibonacci, sp1, 2345678
+app,target,time_ns
+fibonacci,risc0,1234567
+fibonacci,sp1,2345678
 ```
 
 ## Directory Structure
