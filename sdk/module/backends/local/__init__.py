@@ -25,7 +25,7 @@ def compile(project_path, mode_value, verbose):
     """
     docker_mgmt.run_container('compile', target, project_path, mode_value, verbose)
 
-def run(project_path, mode_value, verbose):
+def run(project_path, mode_value, verbose, file_path):
     """
     Run compiled project
 
@@ -34,9 +34,9 @@ def run(project_path, mode_value, verbose):
         mode_value (str): debug or release mode (default debug)
         verbose (bool): enable verbose mode
     """
-    docker_mgmt.run_container('run', target, project_path, mode_value, verbose)
+    docker_mgmt.run_container('run', target, project_path, mode_value, verbose, file_path)
 
-def benchmark(project_path, mode_value, verbose):
+def benchmark(project_path, mode_value, verbose, file_path):
     """
     Benchmark compiled project getting execution time
 
@@ -45,7 +45,7 @@ def benchmark(project_path, mode_value, verbose):
         mode_value (str): debug or release mode (default debug)
         verbose (bool): enable verbose mode
     """
-    docker_mgmt.run_container('benchmark', target, project_path, mode_value, verbose)
+    docker_mgmt.run_container('benchmark', target, project_path, mode_value, verbose, file_path)
 
 def calculate_codehash(project_path, mode_value, verbose):
     """

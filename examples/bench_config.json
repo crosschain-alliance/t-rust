@@ -1,0 +1,37 @@
+{
+  "sha2":{
+    "input":"deadc0de",
+    "input_type":"bytearray",
+    "targets":[
+      "sp1",
+      "risc0",
+      "jolt"
+    ]
+  },
+  "sha3":{
+    "input":"deadc0de",
+    "input_type":"bytearray",
+    "targets":[
+      "sp1",
+      "risc0",
+      "jolt"
+    ]
+  },
+  "fibonacci":{
+    "input":50,
+    "input_type":"uint32",
+    "targets":[
+      "sp1",
+      "risc0",
+      "jolt"
+    ]
+  },
+  "block_validation":{
+    "input":"./reth_block.bin",
+    "input_type":"file",
+    "targets":[
+      "sp1",
+      "risc0"
+    ]
+  }
+}

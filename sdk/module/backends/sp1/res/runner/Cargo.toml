@@ -12,11 +12,12 @@ name = "vkey"
 path = "src/bin/vkey.rs"
 
 [dependencies]
+anyhow = "1.0"
 args = { path = "../../../../../args/" }
-sp1-sdk = { git = "https://github.com/succinctlabs/sp1.git", tag = "v2.0.0", features = ["native-gnark"] }
 serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
 serde = { version = "1.0", default-features = false, features = ["derive"] }
+sp1-sdk = "4.1.1"
 hex = "0.4.3"
 
 [build-dependencies]
-sp1-helper = { git = "https://github.com/succinctlabs/sp1.git", tag = "v2.0.0" }
+sp1-build = "4.1.0"

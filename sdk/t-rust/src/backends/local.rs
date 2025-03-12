@@ -88,13 +88,13 @@ impl<W: Write> ArgsWriter<W> {
 }
 
 fn open_mutexed_reader_file(filename: &str) -> Mutex<ArgsReader<BufReader<File>>> {
-    let file = File::open(filename).expect("Failed to open file");
+    let file = File::open(filename).expect("Failed read arguments: use -k to pass input arguments"); // TODO: handle input error properly
     let reader = ArgsReader::new(BufReader::new(file));
     Mutex::new(reader)
 }
 
 fn open_mutexed_writer_file(filename: &str) -> Mutex<ArgsWriter<BufWriter<File>>> {
-    let file = File::create(filename).expect("Failed to create file");
+    let file = File::create(filename).expect("Failed to pass arguments");
     let writer = ArgsWriter::new(BufWriter::new(file));
     Mutex::new(writer)
 }

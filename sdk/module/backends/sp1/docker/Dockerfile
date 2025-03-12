@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:24.04 as base
 ENV TZ=Europe/London
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
   apt update -y && \
@@ -10,8 +10,10 @@ ENV PATH="/root/.sp1/bin:${PATH}"
 RUN wget -c https://go.dev/dl/go1.22.0.linux-amd64.tar.gz && \
     tar -C /usr/local/ -xzf go1.22.0.linux-amd64.tar.gz
 ENV PATH="$PATH:/usr/local/go/bin"
-RUN sp1up && \
-  mkdir /sp1_target
+RUN sp1up
+
+FROM base as app
+RUN mkdir /sp1_target
 COPY run.sh /sp1_target
 WORKDIR /sp1_target
 

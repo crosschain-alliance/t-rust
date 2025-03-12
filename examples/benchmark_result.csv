@@ -1,0 +1,12 @@
+app, target, time (ns)
+sha2, sp1, 8926177298
+sha2, risc0, 3773986391
+sha2, jolt, 33280083610
+sha3, sp1, 9240951423
+sha3, risc0, 3866878977
+sha3, jolt, 31589690483
+fibonacci, sp1, 8839560167
+fibonacci, risc0, 2001536975
+fibonacci, jolt, 32310056983
+block_validation, sp1, 1486910063544
+block_validation, risc0, 4643732040837

@@ -13,7 +13,8 @@ project_path = os.path.abspath(os.path.curdir)
 ENABLED_TYPES = [
     'uint32',
     'string',
-    'bytearray'
+    'bytearray',
+    'file',
 ]
 
 def parse_user_args(args):
@@ -46,9 +47,9 @@ def parse_user_args(args):
     return parsed_list
 
 parser = argparse.ArgumentParser()
-parser.add_argument('command', nargs='?', choices=['compile', 'run', 'benchmark', 'codehash'],
+parser.add_argument('command', nargs='?', choices=['compile', 'run', 'prove', 'verify', 'benchmark', 'codehash'],
                     help="Command to execute", default='none')
-parser.add_argument('backend', nargs='?', choices=['local', 'sp1'], help="Backend to use", default='none')
+parser.add_argument('backend', nargs='?', choices=['local', 'sp1', 'risc0', 'jolt'], help="Backend to use", default='none')
 parser.add_argument('-k', nargs='+', action='append',
                     help='Optional runtime arguments, format `key:type value`')
 parser.add_argument('-m', '--mode', choices=['release', 'debug'],
@@ -56,9 +57,19 @@ parser.add_argument('-m', '--mode', choices=['release', 'debug'],
 parser.add_argument('-v', '--verbose', action='store_true',
                     help='Enable verbose mode')
 args = parser.parse_args()
+
 key_value_pairs = parse_user_args(args.k) if args.k else []
+key_value_pairs.insert(0,{'name': 'mode', 'value': args.command, 'kind': 'internal'})
+# Process key_value_pairs entries of type 'file'
+file_path = None
+for arg in key_value_pairs:
+    if arg['kind'] == 'file':
+        if not os.path.exists(arg['value']):
+            print(f"[!] file not found: {arg['value']}")
+            sys.exit(1)
+        file_path = arg['value']
 mode_value = args.mode
-command = args.command
+command = args.command if args.command not in ('prove', 'verify') else 'run'
 backend = args.backend
 verbose = args.verbose
 with open('/tmp/trust.rargs', 'wb') as cbor_file:
@@ -68,9 +79,9 @@ def main():
     if command == 'compile':
         getattr(tRUST.backends, backend).compile(project_path, mode_value, verbose)
     elif command == 'run':
-        getattr(tRUST.backends, backend).run(project_path, mode_value, verbose)
+        getattr(tRUST.backends, backend).run(project_path, mode_value, verbose, file_path)
     elif command == 'benchmark':
-        getattr(tRUST.backends, backend).benchmark(project_path, mode_value, verbose)
+        getattr(tRUST.backends, backend).benchmark(project_path, mode_value, verbose, file_path)
     elif command == 'codehash':
         getattr(tRUST.backends, backend).calculate_codehash(project_path, mode_value, verbose)
     elif command == 'list_targets':
